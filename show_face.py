@@ -55,7 +55,8 @@ def capturing_from_webcam(algorithm):
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 5) """
 
 
-        #rgb_frame = frame[:, :, ::-1] #convert BGR to RGB
+        #convert BGR to RGB:
+        #rgb_frame = frame[:, :, ::-1]
 
 
         #get the location of human face in the grayscaled image (face detector):
@@ -93,7 +94,7 @@ def capturing_from_webcam(algorithm):
                             (225, 225, 225), 2)
 
 
-        #showing to screen
+        #create window to show captured image on the screen screen
         cv2.imshow('Captured face', frame)
 
 
@@ -128,4 +129,5 @@ if __name__ == "__main__":
             elif (choice == "2"): algorithm = "SqNN"
             elif (choice == "3"): algorithm = "None"
             capturing_from_webcam(algorithm)
-    print("\nNothing wrong happenned. Good bye!\n")
+        print()
+    print("Nothing wrong happenned. Good bye!\n")
