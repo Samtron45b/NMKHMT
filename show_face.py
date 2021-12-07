@@ -70,7 +70,7 @@ def capturing_from_webcam(algorithm):
             #draw the text "Smiling"/"Not smiling" with box:
             cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (225, 0, 0), cv2.FILLED)
             cv2.putText(frame, state, (left + 6, bottom - 6), cv2.FONT_HERSHEY_COMPLEX, 1.0, 
-                        (225, 225, 225), cv2.LINE_AA)
+                        (225, 225, 225), 1)
 
         #showing to screen
         cv2.imshow('Captured face', frame)
