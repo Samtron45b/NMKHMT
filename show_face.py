@@ -37,7 +37,7 @@ def capturing_from_webcam(algorithm):
 
     
     #face detector:
-    #face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+    face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
     
 
     while True:
@@ -49,27 +49,15 @@ def capturing_from_webcam(algorithm):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         
 
-        #resized_gray = cv2.resize(gray, (0,0), fx=0.25, fy=0.25)
-        """ faces = face_cascade.detectMultiScale(gray, 1.05, 5)
+        #detect location of the face:
+        faces = face_cascade.detectMultiScale(gray, 1.05, 5)
+
+
         for (x, y, w, h) in faces:
-            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 5) """
-
-
-        #convert BGR to RGB:
-        #rgb_frame = frame[:, :, ::-1]
-
-
-        #get the location of human face in the grayscaled image (face detector):
-        face_locations = face_recognition.face_locations(gray)
-
-
-        #smile detection process:
-        for (top, right, bottom, left) in face_locations:
             #draw the rectangle(s) surround(s) each detected human face:
-            cv2.rectangle(frame, (left, top), (right, bottom), (225, 0, 0), 3)
-
-            #make a smile detection only if user choosed an algorithm:
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 5)
             if (algorithm != "None"):
+                top, left, bottom, right = y, x, y + h, x + w
                 #get face only:
                 face_gray = gray[top:bottom, left:right]
 
@@ -84,7 +72,6 @@ def capturing_from_webcam(algorithm):
                 elif (algorithm == "SqNN"): isSmiling = SqNN_smile(test_face_gray)
 
                 if (isSmiling == 1): state = "Smiling"
-
 
                 #draw the text "Smiling"/"Not smiling" with box for each detected human face:
                 #box:
