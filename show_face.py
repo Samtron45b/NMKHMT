@@ -1,26 +1,25 @@
 import numpy as np
 import cv2
-#import face_recognition
 import pickle
 import tensorflow as tf
 from keras.preprocessing.image import img_to_array
 
 
-LeNetModel = None
+
+SVMModel, SNNModel, LeNetModel = None, None, None
+
 
 
 def SVM_smile(npimage: np.ndarray):
-    with open("D:\\svm_model.sav", "rb") as content:
-        model = pickle.load(content)
-        return model.predict(npimage)
+    return SVMModel.predict(npimage)
 
 
 
 def SqNN_smile(npimage: np.ndarray):
     npimage = npimage.reshape(1, -1)
-    model = tf.keras.models.load_model("./model")
-    result = model.predict(npimage)
+    result = SNNModel.predict(npimage)
     return np.argmax(result, axis=1)
+
 
 
 def LeNet_smile(npimage: np.ndarray):
@@ -30,6 +29,7 @@ def LeNet_smile(npimage: np.ndarray):
     roi = np.expand_dims(roi, axis=0)
     result = LeNetModel.predict(roi)
     return np.argmax(result, axis=1)
+
 
 
 def preprocessing_image(image):
@@ -62,7 +62,6 @@ def capturing_from_webcam(algorithm):
 
         #detect location of the face:
         faces = face_cascade.detectMultiScale(gray, 1.05, 5)
-
 
 
         for (x, y, w, h) in faces:
@@ -125,12 +124,20 @@ if __name__ == "__main__":
             print("Invalid input\n\n")
         else:
             if (choice == "0"): break
-            elif (choice == "1"): algorithm = "SVM"
-            elif (choice == "2"): algorithm = "SqNN"
+            elif (choice == "1"):
+                if (SVMModel == None):
+                    with open("./models/SVM/svm_model.sav", "rb") as content:
+                        SVMModel = pickle.load(content)
+                algorithm = "SVM"
+            elif (choice == "2"):
+                if (SNNModel == None):
+                    SNNModel = tf.keras.models.load_model("./models/SNN")
+                algorithm = "SqNN"
             elif (choice == "3"): 
+                if (LeNetModel == None):
+                    LeNetModel = tf.keras.models.load_model("./models/LeNet")
                 algorithm = "LeNet"
-                LeNetModel = tf.keras.models.load_model("./model/LeNet")
-            else: algorithm = "None"
+            elif (choice == "4"): algorithm = "None"
             capturing_from_webcam(algorithm)
         print()
     print("Nothing wrong happenned. Good bye!\n")
