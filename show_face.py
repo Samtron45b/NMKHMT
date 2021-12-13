@@ -119,7 +119,7 @@ if __name__ == "__main__":
         num_choices = len(choice_menu.split("\n"))
         print("Choice menu:")
         print(choice_menu)
-        choice = input("Choose the algorithm you want to use:")
+        choice = input("Choose the algorithm you want to use: ")
         if (choice < "0" or choice > str(num_choices)):
             print("Invalid input\n\n")
         else:
