@@ -65,11 +65,11 @@ def capturing_from_webcam(algorithm):
 
 
         for (x, y, w, h) in faces:
+            top, left, bottom, right = y, x, y + h, x + w
             #draw the rectangle(s) surround(s) each detected human face:
-            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 5)
+            cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 5)
 
             if (algorithm != "None"):
-                top, left, bottom, right = y, x, y + h, x + w
                 #get face only:
                 face_gray = gray[top:bottom, left:right]
 
