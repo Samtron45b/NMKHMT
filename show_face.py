@@ -3,7 +3,10 @@ import cv2
 #import face_recognition
 import pickle
 import tensorflow as tf
+from keras.preprocessing.image import img_to_array
 
+
+LeNetModel = None
 
 
 def SVM_smile(npimage: np.ndarray):
@@ -19,6 +22,14 @@ def SqNN_smile(npimage: np.ndarray):
     result = model.predict(npimage)
     return np.argmax(result, axis=1)
 
+
+def LeNet_smile(npimage: np.ndarray):
+    roi = cv2.resize(npimage, (28, 28))
+    roi = roi.astype("float") / 255.0
+    roi = img_to_array(roi)
+    roi = np.expand_dims(roi, axis=0)
+    result = LeNetModel.predict(roi)
+    return np.argmax(result, axis=1)
 
 
 def preprocessing_image(image):
@@ -53,9 +64,11 @@ def capturing_from_webcam(algorithm):
         faces = face_cascade.detectMultiScale(gray, 1.05, 5)
 
 
+
         for (x, y, w, h) in faces:
             #draw the rectangle(s) surround(s) each detected human face:
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 5)
+
             if (algorithm != "None"):
                 top, left, bottom, right = y, x, y + h, x + w
                 #get face only:
@@ -70,7 +83,7 @@ def capturing_from_webcam(algorithm):
                 #choose the algorithm to make a smile detection:
                 if (algorithm == "SVM"): isSmiling = SVM_smile(test_face_gray)
                 elif (algorithm == "SqNN"): isSmiling = SqNN_smile(test_face_gray)
-
+                elif (algorithm == "LeNet"): isSmiling = LeNet_smile(face_gray)
                 if (isSmiling == 1): state = "Smiling"
 
                 #draw the text "Smiling"/"Not smiling" with box for each detected human face:
@@ -99,7 +112,7 @@ def capturing_from_webcam(algorithm):
 
 if __name__ == "__main__":
     last_choice = ". None (Only show the face video with face detection"
-    choice_menu = "0. Exit\n1. SVM\n2. Sequential Neural Network"
+    choice_menu = "0. Exit\n1. SVM\n2. Sequential Neural Network\n3. LeNet Convolutional Network"
     num_choices = len(choice_menu.split("\n"))
     choice_menu = str(choice_menu + "\n" + str(num_choices) + last_choice)
     choice, algorithm = -1, ""
@@ -108,13 +121,16 @@ if __name__ == "__main__":
         print("Choice menu:")
         print(choice_menu)
         choice = input("Choose the algorithm you want to use:")
-        if (choice < "0" or choice > "3"):
+        if (choice < "0" or choice > str(num_choices)):
             print("Invalid input\n\n")
         else:
             if (choice == "0"): break
             elif (choice == "1"): algorithm = "SVM"
             elif (choice == "2"): algorithm = "SqNN"
-            elif (choice == "3"): algorithm = "None"
+            elif (choice == "3"): 
+                algorithm = "LeNet"
+                LeNetModel = tf.keras.models.load_model("./model/LeNet")
+            else: algorithm = "None"
             capturing_from_webcam(algorithm)
         print()
     print("Nothing wrong happenned. Good bye!\n")
