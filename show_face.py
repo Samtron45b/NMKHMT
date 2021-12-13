@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-import face_recognition
+#import face_recognition
 import pickle
 import tensorflow as tf
 
@@ -15,7 +15,7 @@ def SVM_smile(npimage: np.ndarray):
 
 def SqNN_smile(npimage: np.ndarray):
     npimage = npimage.reshape(1, -1)
-    model = tf.keras.models.load_model("./../../NMKHMT/model")
+    model = tf.keras.models.load_model("./model")
     result = model.predict(npimage)
     return np.argmax(result, axis=1)
 
@@ -33,7 +33,7 @@ def preprocessing_image(image):
 
 def capturing_from_webcam(algorithm):
     #the video capturer:
-    vidcap = cv2.VideoCapture(0)
+    vidcap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
     
     #face detector:
