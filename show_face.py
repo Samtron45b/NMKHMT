@@ -6,7 +6,7 @@ from keras.preprocessing.image import img_to_array
 
 
 
-SVMModel, SNNModel, LeNetModel = None, None, None
+SVMModel, SNNModel, LeNetModel, MiniVGGNetModel = None, None, None, None
 
 
 
@@ -22,12 +22,20 @@ def SqNN_smile(npimage: np.ndarray):
 
 
 
-def LeNet_smile(npimage: np.ndarray):
+def roi(npimage):
     roi = cv2.resize(npimage, (28, 28))
     roi = roi.astype("float") / 255.0
     roi = img_to_array(roi)
     roi = np.expand_dims(roi, axis=0)
-    result = LeNetModel.predict(roi)
+    return roi
+
+def LeNet_smile(npimage: np.ndarray):
+    result = LeNetModel.predict(roi(npimage))
+    return np.argmax(result, axis=1)
+
+
+def MiniVGGNet_smile(npimage: np.ndarray):
+    result = MiniVGGNetModel.predict(roi(npimage))
     return np.argmax(result, axis=1)
 
 
@@ -46,10 +54,10 @@ def capturing_from_webcam(algorithm):
     #the video capturer:
     vidcap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
-    
+
     #face detector:
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
-    
+
 
     while True:
         #get image from the captured video:
@@ -58,7 +66,7 @@ def capturing_from_webcam(algorithm):
 
         #gray scale image to make things eassier:
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        
+
 
         #detect location of the face:
         faces = face_cascade.detectMultiScale(gray, 1.05, 5)
@@ -83,13 +91,14 @@ def capturing_from_webcam(algorithm):
                 if (algorithm == "SVM"): isSmiling = SVM_smile(test_face_gray)
                 elif (algorithm == "SqNN"): isSmiling = SqNN_smile(test_face_gray)
                 elif (algorithm == "LeNet"): isSmiling = LeNet_smile(face_gray)
+                elif (algorithm == "MiniVGGNet"): isSmiling = MiniVGGNet_smile(face_gray)
                 if (isSmiling == 1): state = "Smiling"
 
                 #draw the text "Smiling"/"Not smiling" with box for each detected human face:
                 #box:
                 cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (225, 0, 0), cv2.FILLED)
                 #text:
-                cv2.putText(frame, state, (left + 5, bottom - 6), cv2.FONT_HERSHEY_DUPLEX, 1.0, 
+                cv2.putText(frame, state, (left + 5, bottom - 6), cv2.FONT_HERSHEY_DUPLEX, 1.0,
                             (225, 225, 225), 2)
 
 
@@ -111,7 +120,7 @@ def capturing_from_webcam(algorithm):
 
 if __name__ == "__main__":
     last_choice = ". None (Only show the face video with face detection"
-    choice_menu = "0. Exit\n1. SVM\n2. Sequential Neural Network\n3. LeNet Convolutional Network"
+    choice_menu = "0. Exit\n1. SVM\n2. Sequential Neural Network\n3. LeNet Convolutional Network\n4. MiniVGGNet"
     num_choices = len(choice_menu.split("\n"))
     choice_menu = str(choice_menu + "\n" + str(num_choices) + last_choice)
     choice, algorithm = -1, ""
@@ -133,11 +142,15 @@ if __name__ == "__main__":
                 if (SNNModel == None):
                     SNNModel = tf.keras.models.load_model("./models/SNN")
                 algorithm = "SqNN"
-            elif (choice == "3"): 
+            elif (choice == "3"):
                 if (LeNetModel == None):
                     LeNetModel = tf.keras.models.load_model("./models/LeNet")
                 algorithm = "LeNet"
-            elif (choice == "4"): algorithm = "None"
+            elif (choice == "4"):
+                if (MiniVGGNetModel == None):
+                    MiniVGGNetModel = tf.keras.models.load_model("./models/MiniVGGNet")
+                algorithm = "MiniVGGNet"
+            elif (choice == "5"): algorithm = "None"
             capturing_from_webcam(algorithm)
         print()
     print("Nothing wrong happenned. Good bye!\n")
