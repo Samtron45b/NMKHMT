@@ -23,8 +23,7 @@ class MiniVGGNet:
 			chanDim = 1
 
 		# first CONV => RELU => CONV => RELU => POOL layer set
-		model.add(Conv2D(32, (3, 3), padding="same",
-		input_shape=inputShape))
+		model.add(Conv2D(32, (3, 3), padding="same", input_shape=inputShape))
 		model.add(Activation("relu"))
 		model.add(BatchNormalization(axis=chanDim))
 		model.add(Conv2D(32, (3, 3), padding="same"))
